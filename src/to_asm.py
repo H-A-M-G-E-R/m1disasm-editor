@@ -78,6 +78,11 @@ def global_objs_2_asm(objs, obj_types):
             same_row[row] = [col]
     same_row_list = [[row, cols] for row, cols in same_row.items()]
 
+    # Sort so objects spawn correctly
+    same_row_list.sort(key=lambda pair: pair[0])
+    for row, cols in same_row_list:
+        cols.sort()
+
     asm = 'SpecItmsTbl:\n'
     for row_i, (row, cols) in enumerate(same_row_list):
         asm += f'@y{row:02X}:\n'
