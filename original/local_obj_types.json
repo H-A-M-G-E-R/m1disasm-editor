@@ -1,0 +1,110 @@
+{
+    "enemy": {
+        "type": 1,
+        "props": [
+            {
+                "slot": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            },
+            {
+                "tough": {
+                    "len": 1,
+                    "shifts": 7
+                },
+                "miniboss":  {
+                    "len": 1,
+                    "shifts": 6
+                },
+                "type":  {
+                    "len": 6,
+                    "shifts": 0
+                }
+            },
+            {
+                "y":  {
+                    "len": 4,
+                    "shifts": 4
+                },
+                "x":  {
+                    "len": 4,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "door": {
+        "type": 2,
+        "props": [
+            {},
+            {
+                "dir":  {
+                    "len": 1,
+                    "shifts": 4
+                },
+                "type":  {
+                    "len": 2,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "elevator": {
+        "type": 4,
+        "props": [
+            {},
+            {
+                "dir":  {
+                    "len": 1,
+                    "shifts": 7
+                },
+                "type":  {
+                    "len": 6,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "statues": {
+        "type": 6,
+        "props": [
+            {}
+        ]
+    },
+    "pipe_bug_hole": {
+        "type": 7,
+        "props": [
+            {
+                "slot": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            },
+            {
+                "tough": {
+                    "len": 1,
+                    "shifts": 7
+                },
+                "miniboss":  {
+                    "len": 1,
+                    "shifts": 6
+                },
+                "type":  {
+                    "len": 6,
+                    "shifts": 0
+                }
+            },
+            {
+                "y":  {
+                    "len": 4,
+                    "shifts": 4
+                },
+                "x":  {
+                    "len": 4,
+                    "shifts": 0
+                }
+            }
+        ]
+    }
+}

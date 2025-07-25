@@ -1,0 +1,152 @@
+{
+    "enemy": {
+        "type": 1,
+        "props": [
+            {
+                "slot": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            },
+            {
+                "tough": {
+                    "len": 1,
+                    "shifts": 7
+                },
+                "miniboss":  {
+                    "len": 1,
+                    "shifts": 6
+                },
+                "type":  {
+                    "len": 6,
+                    "shifts": 0
+                }
+            },
+            {
+                "y":  {
+                    "len": 4,
+                    "shifts": 4
+                },
+                "x":  {
+                    "len": 4,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "item": {
+        "type": 2,
+        "props": [
+            {},
+            {
+                "type": {
+                    "len": 8,
+                    "shifts": 0
+                }
+            },
+            {
+                "y":  {
+                    "len": 4,
+                    "shifts": 4
+                },
+                "x":  {
+                    "len": 4,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "mellows": {
+        "type": 3,
+        "props": [
+            {}
+        ]
+    },
+    "elevator": {
+        "type": 4,
+        "props": [
+            {},
+            {
+                "dir":  {
+                    "len": 1,
+                    "shifts": 7
+                },
+                "type":  {
+                    "len": 6,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "cannon": {
+        "type": 5,
+        "props": [
+            {
+                "type": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            },
+            {
+                "y":  {
+                    "len": 4,
+                    "shifts": 4
+                },
+                "x":  {
+                    "len": 4,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "mother_brain": {
+        "type": 6,
+        "props": [
+            {}
+        ]
+    },
+    "zebetite": {
+        "type": 7,
+        "props": [
+            {
+                "id": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            }
+        ]
+    },
+    "rinka_spawner": {
+        "type": 8,
+        "props": [
+            {
+                "type": {
+                    "len": 4,
+                    "shifts": 4
+                }
+            }
+        ]
+    },
+    "door": {
+        "type": 9,
+        "props": [
+            {},
+            {
+                "dir":  {
+                    "len": 1,
+                    "shifts": 4
+                },
+                "type":  {
+                    "len": 2,
+                    "shifts": 0
+                }
+            }
+        ]
+    },
+    "pal_change": {
+        "type": 10,
+        "props": [
+            {}
+        ]
+    }
+}

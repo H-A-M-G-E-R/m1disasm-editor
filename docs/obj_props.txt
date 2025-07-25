@@ -1,0 +1,126 @@
+enemy:
+    slot: Current slot the enemy spawns. If there's already an enemy at that slot, it will not spawn.
+    miniboss: Whether the enemy is a miniboss. Valid areas: kraid, ridley
+    type: Type (or species) of enemy.
+
+Enemy types:
+    Brinstar:
+        00 - Sidehopper
+        01 - Ceiling sidehopper
+        02 - Waver
+        03 - Ripper
+        04 - Skree
+        05 - Zoomer (crawler)
+        06 - Rio (swoopers)
+        07 - Zeb
+        08 - Kraid (crashes due to bug)
+        09 - Kraid's lint (crashes)
+        0A - Kraid's nail (crashes)
+        0B - Null pointers (hard crash)
+        0C - Null
+        0D - Null
+        0E - Null
+        0F - Null
+    Norfair:
+        00 - geruta has not seen samus
+        01 - geruta targeting samus
+        02 - ripper II
+        03 - disappears
+        04 - same as 3
+        05 - same as 3
+        06 - nova
+        07 - gamet
+        08 - same as 3
+        09 - same as 3
+        0A - same as 3
+        0B - squeept
+        0C - multiviola
+        0D - dragon
+        0E - polyp
+        0F - same as 3
+    Tourian:
+        00 - red metroid
+        01 - green metroid
+        02 - i dunno but it takes 30 damage with varia
+        03 - disappears
+        04 - rinka
+        05 - same as 3
+        06 - same as 3
+        07 - same as 3
+        08 - same as 3
+        09 - same as 3
+        0A - same as 3
+        0B - same as 3
+        0C - same as 3
+        0D - same as 3
+        0E - same as 3
+        0F - same as 3
+    Kraid:
+        00 - sidehopper
+        01 - ceiling sidehopper
+        02 - unused enemy type that doesn't properly clear itself
+        03 - ripper
+        04 - skree
+        05 - zeela
+        06 - same as 2
+        07 - geega
+        08 - kraid
+        09 - kraid lint
+        0A - kraid nail
+        0B - same as 2
+        0C - same as 2
+        0D - same as 2
+        0E - same as 2
+        0F - same as 2
+    Ridley:
+        00 - holtz has not seen samus
+        01 - holtz targetting samus
+        02 - dessgeega
+        03 - ceiling dessgeega
+        04 - disappears
+        05 - same as 4
+        06 - viola
+        07 - zebbo
+        08 - same as 4
+        09 - ridley
+        0A - ridley fireball
+        0B - same as 4
+        0C - multiviola
+        0D - same as 4
+        0E - polyp (unused)
+        0F - same as 4
+
+door:
+    dir: Direction of door. 0 = right, 1 = left
+    type: Type of door. 0 = red door, 1 = blue door, 2 = 10-missile door, 3 = door connecting to Mother Brain's room
+
+elevator:
+    dir: Direction of elevator. 0 = down, 1 = up
+    type: Vanilla: Type of elevator. 7F with dir = up = elevator to ending
+        0 = Brinstar/Brinstar
+        1 = Brinstar/Norfair
+        2 = Brinstar/Kraid
+        3 = Brinstar/Tourian
+        4 = Norfair/Ridley
+        Modded: Destination area. 7F = elevator to ending
+
+statues: (no props)
+
+pipe_bug_hole: (same as enemy)
+
+item:
+    type: Type of item.
+        0 = Bomb
+        1 = Hi-Jump
+        2 = Long beam
+        3 = Screw attack
+        4 = Morph ball
+        5 = Varia suit
+        6 = Wave beam
+        7 = Ice beam
+        8 = Energy tank
+        9 = Missile
+
+mellows/mellas/memus: (no props)
+
+pal_change: (no props)
