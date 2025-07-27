@@ -253,6 +253,9 @@ class MapEditWindow(QMainWindow):
         def room_edited(self):
             self.update(self.sceneRect())
 
+        def new_room_added(self):
+            self.update(self.sceneRect())
+
     class MapEditView(QGraphicsView):
         def __init__(self, scene, parent=None):
             super().__init__(parent)
@@ -375,3 +378,7 @@ class MapEditWindow(QMainWindow):
     def room_edited(self, room_idx, x, y):
         self.room_select.room_edited(room_idx, x, y)
         self.map_edit.room_edited()
+
+    def new_room_added(self):
+        self.room_select.new_room_added()
+        self.map_edit.new_room_added()

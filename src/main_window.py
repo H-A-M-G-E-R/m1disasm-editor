@@ -42,7 +42,7 @@ class MainWindow(QMainWindow):
 
         self.metatile_edit_window.mt_edit.edited.connect(self.metatile_edited)
         self.room_edit_window.room_edit.edited.connect(self.map_edit_window.room_edited)
-        self.room_edit_window.new_room_added.connect(self.map_edit_window.room_select.new_room_added)
+        self.room_edit_window.new_room_added.connect(self.map_edit_window.new_room_added)
 
     @Slot(str)
     def area_changed(self, area):
