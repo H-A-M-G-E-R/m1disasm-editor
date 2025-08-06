@@ -412,6 +412,8 @@ class RoomEditWindow(QMainWindow):
     def area_changed(self, gfx, pals, metatile_data, rooms_data):
         self.rooms_data = rooms_data
 
+        self.pal_select.setValue(0)
+    
         self.room_select.setValue(0)
         self.room_select.setMaximum(len(rooms_data)-1)
 
