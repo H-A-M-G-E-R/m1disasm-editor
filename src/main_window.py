@@ -19,7 +19,16 @@ class MainWindow(QMainWindow):
         self.save_action.setShortcut('Ctrl+S')
         self.save_action.triggered.connect(self.save_triggered)
 
+        self.tools_menu = QMenu('Tools')
+        self.show_mt_edit_action = self.tools_menu.addAction('Metatile editor')
+        self.show_mt_edit_action.triggered.connect(self.show_mt_edit_triggered)
+        self.show_room_edit_action = self.tools_menu.addAction('Room editor')
+        self.show_room_edit_action.triggered.connect(self.show_room_edit_triggered)
+        self.show_map_edit_action = self.tools_menu.addAction('Map editor')
+        self.show_map_edit_action.triggered.connect(self.show_map_edit_triggered)
+
         self.menuBar().addMenu(self.file_menu)
+        self.menuBar().addMenu(self.tools_menu)
 
         self.area_select = QComboBox(self)
         for area in self.area_names:
@@ -113,6 +122,7 @@ class MainWindow(QMainWindow):
                 obj_lists.append(obj_list)
             self.global_obj_data[area] = obj_lists
 
+    @Slot(bool)
     def save_triggered(self, checked):
         #with open(os.path.join(self.folder_path, 'area_names.json'), 'w') as f:
         #    json.dump(self.area_names, f, indent=4)
@@ -177,3 +187,15 @@ class MainWindow(QMainWindow):
 
             with open(os.path.join(self.folder_path, f'{area}/global_objs.asm'), 'w') as f:
                 f.write(global_objs_2_asm(global_objs, self.global_obj_types))
+
+    @Slot(bool)
+    def show_mt_edit_triggered(self, checked):
+        self.metatile_edit_window.show()
+
+    @Slot(bool)
+    def show_room_edit_triggered(self, checked):
+        self.room_edit_window.show()
+
+    @Slot(bool)
+    def show_map_edit_triggered(self, checked):
+        self.map_edit_window.show()
