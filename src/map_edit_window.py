@@ -1,10 +1,9 @@
-from PySide6.QtCore import Qt, Signal, Slot, QRectF, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
+from PySide6.QtCore import Qt, Signal, Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
 from PySide6.QtGui import QImage, QPainter, QBrush, QPen, QFont
 from PySide6.QtWidgets import *
 from src.pal_utils import convert_palette, put_palette_strings
 from src.twobpp import gfx_2_qimage
-from src.obj_widgets import ObjPropsModel, ObjPropsDelegate, ObjList
-import copy, base64, json
+from src.obj_widgets import ObjectGraphicsItem, ObjPropsModel, ObjPropsDelegate, ObjList
 
 class MapEditWindow(QMainWindow):
     class RoomSelect(QGraphicsScene):
@@ -110,26 +109,6 @@ class MapEditWindow(QMainWindow):
             self.setFrameStyle(QFrame.NoFrame)
 
     class MapEdit(QGraphicsScene):
-        class GlobalObject(QGraphicsItem):
-            def __init__(self, obj_data, idx, parent=None):
-                super().__init__(parent)
-                self.obj_data = obj_data
-                self.idx = idx
-                self.setPos(obj_data[1][1], obj_data[2][1]//0x100*0xF0+(obj_data[2][1]&0xFF))
-
-            def paint(self, painter, option, widget):
-                pen = QPen(0xFFFFFF)
-                pen.setJoinStyle(Qt.MiterJoin)
-                painter.setPen(pen)
-                painter.drawLine(-0x10, 0, 0, 0)
-                painter.drawLine(0, -0x10, 0, 0x10)
-                painter.setFont(QFont('monospace', 10, QFont.Bold))
-                painter.drawText(4, 10, str(self.obj_data[0][1]))
-                painter.drawText(4, -4, f'{self.idx:02X}')
-
-            def boundingRect(self):
-                return QRectF(-0x20, -0x20, 0xC0, 0x40)
-
         def __init__(self, gfx, pals, metatile_data, rooms_data, global_obj_data, world_map, parent=None):
             super().__init__(0, 0, 0x100*0x20+1, 0xF0*0x20+1, parent)
 
@@ -181,7 +160,7 @@ class MapEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            if event.button() == Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton:
                 x = event.scenePos().x()
                 y = event.scenePos().y()
                 self.world_map[int(x//0x100+y//0xF0*0x20)] = self.selected_room
@@ -197,7 +176,7 @@ class MapEditWindow(QMainWindow):
             self.clear()
             self.objs = []
             for i, obj_data in enumerate(self.global_obj_data): # instead of enumerate(objs) due to a PySide6 bug
-                obj = self.GlobalObject(obj_data, i)
+                obj = ObjectGraphicsItem(obj_data, i, local=False)
                 self.addItem(obj)
                 self.objs.append(obj)
 
@@ -221,6 +200,11 @@ class MapEditWindow(QMainWindow):
         def show_map_coords_toggled(self, state):
             self.show_map_coords = state == Qt.Checked
             self.update(self.sceneRect())
+
+        @Slot(Qt.CheckState)
+        def show_objs_toggled(self, state):
+            for obj in self.objs:
+                obj.setVisible(state == Qt.Checked)
 
         def area_changed(self, gfx, pals, metatile_data, rooms_data, global_obj_data):
             self.gfx = gfx
@@ -282,10 +266,13 @@ class MapEditWindow(QMainWindow):
         self.show_grid_toggle = QCheckBox()
         self.show_room_idxs_toggle = QCheckBox()
         self.show_map_coords_toggle = QCheckBox()
+        self.show_objs_toggle = QCheckBox()
+        self.show_objs_toggle.setCheckState(Qt.Checked)
         self.map_edit_form = QFormLayout()
         self.map_edit_form.addRow('Show grid', self.show_grid_toggle)
         self.map_edit_form.addRow('Show room indices', self.show_room_idxs_toggle)
         self.map_edit_form.addRow('Show map coordinates', self.show_map_coords_toggle)
+        self.map_edit_form.addRow('Show objects', self.show_objs_toggle)
         self.map_edit_layout = QVBoxLayout()
         self.map_edit_layout.addWidget(self.map_edit_view)
         self.map_edit_layout.addLayout(self.map_edit_form)
@@ -331,6 +318,7 @@ class MapEditWindow(QMainWindow):
         self.show_room_idxs_toggle.checkStateChanged.connect(self.room_select.show_room_idxs_toggled)
         self.show_room_idxs_toggle.checkStateChanged.connect(self.map_edit.show_room_idxs_toggled)
         self.show_map_coords_toggle.checkStateChanged.connect(self.map_edit.show_map_coords_toggled)
+        self.show_objs_toggle.checkStateChanged.connect(self.map_edit.show_objs_toggled)
 
         self.obj_list.pressed.connect(self.obj_list_pressed)
 

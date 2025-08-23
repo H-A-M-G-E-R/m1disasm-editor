@@ -1,10 +1,9 @@
-from PySide6.QtCore import Qt, Signal, Slot, QRectF, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
+from PySide6.QtCore import Qt, Signal, Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
 from PySide6.QtGui import QImage, QPainter, QBrush, QPen, QFont
 from PySide6.QtWidgets import *
 from src.pal_utils import convert_palette, put_palette_strings
 from src.twobpp import gfx_2_qimage
-from src.obj_widgets import ObjPropsModel, ObjPropsDelegate, ObjList
-import copy, base64, json
+from src.obj_widgets import ObjectGraphicsItem, ObjPropsModel, ObjPropsDelegate, ObjList
 
 class RoomEditWindow(QMainWindow):
     class MetatileSelect(QGraphicsScene):
@@ -96,26 +95,6 @@ class RoomEditWindow(QMainWindow):
     class RoomEdit(QGraphicsScene):
         edited = Signal(int, int, int)
 
-        class LocalObject(QGraphicsItem):
-            def __init__(self, obj_data, idx, parent=None):
-                super().__init__(parent)
-                self.obj_data = obj_data
-                self.idx = idx
-                self.setPos(obj_data[1][1], obj_data[2][1])
-
-            def paint(self, painter, option, widget):
-                pen = QPen(0xFFFFFF)
-                pen.setJoinStyle(Qt.MiterJoin)
-                painter.setPen(pen)
-                painter.drawLine(-8, 0, 0, 0)
-                painter.drawLine(0, -8, 0, 8)
-                painter.setFont(QFont('monospace', 5, QFont.Bold))
-                painter.drawText(2, 5, str(self.obj_data[0][1]))
-                painter.drawText(2, -2, f'{self.idx:02X}')
-
-            def boundingRect(self):
-                return QRectF(-0x10, -0x10, 0x60, 0x20)
-
         def __init__(self, gfx, pals, metatile_data, rooms_data, parent=None):
             super().__init__(0, 0, 256, 240, parent)
 
@@ -182,13 +161,13 @@ class RoomEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            if event.button() == Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton:
                 self.edit_room_metatile(int(event.scenePos().x()), int(event.scenePos().y()))
 
         def mouseMoveEvent(self, event):
             super().mouseMoveEvent(event)
 
-            if event.buttons() & Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.buttons() & Qt.LeftButton:
                 self.edit_room_metatile(int(event.scenePos().x()), int(event.scenePos().y()))
 
         def edit_room_metatile(self, x, y):
@@ -233,13 +212,18 @@ class RoomEditWindow(QMainWindow):
             self.highlight_same_mts = state == Qt.Checked
             self.update(self.sceneRect())
 
+        @Slot(Qt.CheckState)
+        def show_objs_toggled(self, state):
+            for obj in self.objs:
+                obj.setVisible(state == Qt.Checked)
+
         @Slot(list)
         def obj_list_changed(self, objs):
             # Update objs display
             self.clear()
             self.objs = []
             for i, obj_data in enumerate(self.rooms_data[self.current_room]['objs']): # instead of enumerate(objs) due to a PySide6 bug
-                obj = self.LocalObject(obj_data, i)
+                obj = ObjectGraphicsItem(obj_data, i)
                 self.addItem(obj)
                 self.objs.append(obj)
 
@@ -315,9 +299,12 @@ class RoomEditWindow(QMainWindow):
         self.room_edit_view = self.RoomEditView(self.room_edit)
         self.show_mt_idxs_toggle = QCheckBox()
         self.highlight_same_mts_toggle = QCheckBox()
+        self.show_objs_toggle = QCheckBox()
+        self.show_objs_toggle.setCheckState(Qt.Checked)
         self.room_edit_form = QFormLayout()
         self.room_edit_form.addRow('Show metatile indices', self.show_mt_idxs_toggle)
         self.room_edit_form.addRow('Highlight same metatiles', self.highlight_same_mts_toggle)
+        self.room_edit_form.addRow('Show objects', self.show_objs_toggle)
         self.room_edit_layout = QVBoxLayout()
         self.room_edit_layout.addLayout(self.room_select_form)
         self.room_edit_layout.addWidget(self.new_room_button)
@@ -354,6 +341,7 @@ class RoomEditWindow(QMainWindow):
         self.pal_select.valueChanged.connect(self.room_edit.palette_changed)
         self.show_tile_idxs_toggle.checkStateChanged.connect(self.mt_select.show_tile_idxs_toggled)
         self.show_tile_idxs_toggle.checkStateChanged.connect(self.room_edit.show_tile_idxs_toggled)
+        self.show_objs_toggle.checkStateChanged.connect(self.room_edit.show_objs_toggled)
 
         self.room_select.valueChanged.connect(self.room_edit.room_changed)
         self.room_select.valueChanged.connect(self.room_changed)

@@ -1,6 +1,84 @@
-from PySide6.QtCore import Qt, Signal, Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
+from PySide6.QtCore import Qt, Signal, Slot, QPointF, QRectF, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
+from PySide6.QtGui import QPainter, QBrush, QPen, QFont
 from PySide6.QtWidgets import *
-import copy, json
+from src.main_application import MainApplication
+import copy, json, math
+
+class ObjectGraphicsItem(QGraphicsItem):
+    def __init__(self, obj_data, idx, local=True, parent=None):
+        super().__init__(parent)
+        self.obj_data = obj_data
+        self.idx = idx
+        self.local = local
+        if local:
+            self.setPos(obj_data[1][1], obj_data[2][1])
+        else:
+            self.setPos(obj_data[1][1], obj_data[2][1]//0x100*0xF0+(obj_data[2][1]&0xFF))
+        self.setFlags(QGraphicsItem.ItemIsMovable | QGraphicsItem.ItemIsFocusable | QGraphicsItem.ItemSendsGeometryChanges)
+
+    def paint(self, painter, option, widget):
+        brush = QBrush(0xFFFFFF)
+        painter.setBrush(brush)
+        pen = QPen(0xFFFFFF)
+        pen.setJoinStyle(Qt.MiterJoin)
+        pen.setStyle(Qt.NoPen)
+        painter.setPen(pen)
+        painter.setOpacity(0.5)
+        if self.local:
+            painter.drawRect(-8, -8, 16, 16)
+        else:
+            painter.drawRect(-16, -16, 32, 32)
+
+        brush.setStyle(Qt.NoBrush)
+        painter.setBrush(brush)
+        pen.setStyle(Qt.SolidLine)
+        painter.setPen(pen)
+        painter.setOpacity(1.0)
+        if self.local:
+            painter.drawRect(-8, -8, 16, 16)
+        else:
+            painter.drawRect(-16, -16, 32, 32)
+
+        if self.local:
+            painter.setFont(QFont('monospace', 5, QFont.Bold))
+            painter.drawText(-8, -8, 16, 16, Qt.AlignLeft | Qt.AlignTop, f'{self.idx:02X}')
+            painter.drawText(-8, 0, 16, 8, Qt.AlignLeft | Qt.AlignTop, str(self.obj_data[0][1]))
+        else:
+            painter.setFont(QFont('monospace', 10, QFont.Bold))
+            painter.drawText(-16, -16, 32, 32, Qt.AlignLeft | Qt.AlignTop, f'{self.idx:02X}')
+            painter.drawText(-16, 0, 32, 16, Qt.AlignLeft | Qt.AlignTop, str(self.obj_data[0][1]))
+
+    def boundingRect(self):
+        if self.local:
+            return QRectF(-8, -8, 16, 16)
+        else:
+            return QRectF(-16, -16, 32, 32)
+
+    def itemChange(self, change, value):
+        if change == QGraphicsItem.ItemPositionChange:
+            self.obj_data[1][1] = math.floor(value.x())
+            self.obj_data[2][1] = math.floor(value.y())
+            new_pos = QPointF(self.obj_data[1][1], self.obj_data[2][1])
+            if not self.local:
+                self.obj_data[2][1] = self.obj_data[2][1]//0xF0*0x100+(self.obj_data[2][1]%0xF0)
+            return new_pos
+        return super().itemChange(change, value)
+
+    def mouseMoveEvent(self, event):
+        super().mouseMoveEvent(event)
+        if MainApplication.app.keyboardModifiers() & Qt.ShiftModifier:
+            self.setX(self.x()//8*8)
+            self.setY(self.y()//8*8)
+
+    def keyPressEvent(self, event):
+        if event.key() == Qt.Key_Left:
+            self.setX(self.x() - (8 if MainApplication.app.keyboardModifiers() & Qt.ShiftModifier else 1))
+        elif event.key() == Qt.Key_Right:
+            self.setX(self.x() + (8 if MainApplication.app.keyboardModifiers() & Qt.ShiftModifier else 1))
+        elif event.key() == Qt.Key_Up:
+            self.setY(self.y() - (8 if MainApplication.app.keyboardModifiers() & Qt.ShiftModifier else 1))
+        elif event.key() == Qt.Key_Down:
+            self.setY(self.y() + (8 if MainApplication.app.keyboardModifiers() & Qt.ShiftModifier else 1))
 
 class ObjPropsModel(QAbstractTableModel):
     changed = Signal(int)
