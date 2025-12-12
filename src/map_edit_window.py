@@ -1,9 +1,10 @@
-from PySide6.QtCore import Qt, Signal, Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData
+from PySide6.QtCore import Qt, Signal, Slot, QAbstractListModel, QAbstractTableModel, QModelIndex, QMimeData, QRectF
 from PySide6.QtGui import QImage, QPainter, QBrush, QPen, QFont
 from PySide6.QtWidgets import *
 from src.pal_utils import convert_palette, put_palette_strings
 from src.twobpp import gfx_2_qimage
 from src.obj_widgets import ObjectGraphicsItem, ObjPropsModel, ObjPropsDelegate, ObjList
+import math
 
 class MapEditWindow(QMainWindow):
     class RoomSelect(QGraphicsScene):
@@ -23,8 +24,8 @@ class MapEditWindow(QMainWindow):
             self.show_grid = False
             self.show_room_idxs = False
 
-        def drawBackground(self, painter: QPainter, rect):
-            for room_i in range(len(self.rooms_data)):
+        def drawBackground(self, painter: QPainter, rect: QRectF):
+            for room_i in range(int(rect.top()//0xF0), min(math.ceil(rect.bottom()/0xF0-0.01), len(self.rooms_data))): # account for roundoff error
                 tm = self.rooms_data[room_i]['tilemap']
                 attrs = self.rooms_data[room_i]['attrs']
                 for row in range(0xF):
@@ -35,12 +36,12 @@ class MapEditWindow(QMainWindow):
             pen.setJoinStyle(Qt.MiterJoin)
             painter.setPen(pen)
             if self.show_grid:
-                for room_i in range(len(self.rooms_data)):
+                for room_i in range(int(rect.top()//0xF0), min(math.ceil(rect.bottom()/0xF0-0.01), len(self.rooms_data))):
                     painter.drawRect(0, room_i*0xF0, 0x100, 0xF0)
 
             if self.show_room_idxs:
                 painter.setFont(QFont('monospace', 30, QFont.Bold))
-                for room_i in range(len(self.rooms_data)):
+                for room_i in range(int(rect.top()//0xF0), min(math.ceil(rect.bottom()/0xF0-0.01), len(self.rooms_data))):
                     painter.drawText(0, room_i*0xF0+0x24, f'{room_i:02X}')
                 painter.drawText(0, len(self.rooms_data)*0xF0+0x24, 'FF')
 
@@ -120,9 +121,9 @@ class MapEditWindow(QMainWindow):
 
             self.area_changed(gfx, pals, metatile_data, rooms_data, global_obj_data)
 
-        def drawBackground(self, painter: QPainter, rect):
-            for map_row in range(0x20):
-                for map_col in range(0x20):
+        def drawBackground(self, painter: QPainter, rect: QRectF):
+            for map_row in range(int(rect.top()//0xF0), math.ceil(rect.bottom()/0xF0-0.01)): # account for roundoff error
+                for map_col in range(int(rect.left()//0x100), math.ceil(rect.right()/0x100-0.01)):
                     room_i = self.world_map[map_col+map_row*0x20]
                     if room_i < len(self.rooms_data):
                         tm = self.rooms_data[room_i]['tilemap']
@@ -135,15 +136,15 @@ class MapEditWindow(QMainWindow):
             pen.setJoinStyle(Qt.MiterJoin)
             painter.setPen(pen)
             if self.show_grid:
-                for row in range(0x20):
-                    for col in range(0x20):
+                for row in range(int(rect.top()//0xF0), math.ceil(rect.bottom()/0xF0-0.01)):
+                    for col in range(int(rect.left()//0x100), math.ceil(rect.right()/0x100-0.01)):
                         if self.world_map[col+row*0x20] < len(self.rooms_data):
                             painter.drawRect(col*0x100, row*0xF0, 0x100, 0xF0)
 
             if self.show_room_idxs:
                 painter.setFont(QFont('monospace', 30, QFont.Bold))
-                for row in range(0x20):
-                    for col in range(0x20):
+                for row in range(int(rect.top()//0xF0), math.ceil(rect.bottom()/0xF0-0.01)):
+                    for col in range(int(rect.left()//0x100), math.ceil(rect.right()/0x100-0.01)):
                         room_i = self.world_map[col+row*0x20]
                         if room_i != 0xFF:
                             painter.drawText(col*0x100, row*0xF0+0x24, f'{room_i:02X}')
@@ -151,8 +152,8 @@ class MapEditWindow(QMainWindow):
             if self.show_map_coords:
                 painter.setFont(QFont('monospace', 15, QFont.Bold))
                 y_offset = 0x38 if self.show_room_idxs else 0x38-0x24
-                for row in range(0x20):
-                    for col in range(0x20):
+                for row in range(int(rect.top()//0xF0), math.ceil(rect.bottom()/0xF0-0.01)):
+                    for col in range(int(rect.left()//0x100), math.ceil(rect.right()/0x100-0.01)):
                         room_i = self.world_map[col+row*0x20]
                         if room_i != 0xFF:
                             painter.drawText(col*0x100, row*0xF0+y_offset, f'{col:02X},{row:02X}')
