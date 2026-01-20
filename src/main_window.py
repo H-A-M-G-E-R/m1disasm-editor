@@ -155,8 +155,8 @@ class MainWindow(QMainWindow):
             #with open(os.path.join(self.folder_path, f'{area}/bg.chr'), 'wb') as f:
             #    f.write(bytearray(self.gfx[area]))
 
-            #with open(os.path.join(self.folder_path, f'{area}/palettes.json'), 'w') as f:
-            #    json.dump(self.pals[area], f, indent=1)
+            with open(os.path.join(self.folder_path, f'{area}/palettes.json'), 'w') as f:
+                json.dump(self.pals[area], f, indent=1)
 
             with open(os.path.join(self.folder_path, f'{area}/metatiles.bin'), 'wb') as f:
                 f.write(bytearray(self.metatile_data[area][:0xFF*4]))
