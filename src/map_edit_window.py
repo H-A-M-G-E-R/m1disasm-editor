@@ -88,6 +88,9 @@ class MapEditWindow(QMainWindow):
 
             self.update(self.sceneRect())
 
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.metatile_data, self.rooms_data)
+
         def metatile_edited(self, mt_idx):
             pal = convert_palette(put_palette_strings(self.pals[0]), 'src/palette.pal', transparent=False)
             for pal_idx in range(4):
@@ -229,6 +232,9 @@ class MapEditWindow(QMainWindow):
             # Objects display
             self.obj_list_changed(self.global_obj_data)
 
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.metatile_data, self.rooms_data, self.global_obj_data)
+
         def metatile_edited(self, mt_idx):
             pal = convert_palette(put_palette_strings(self.pals[0]), 'src/palette.pal', transparent=False)
             for pal_idx in range(4):
@@ -359,6 +365,10 @@ class MapEditWindow(QMainWindow):
         else:
             self.obj_props_model = None
         self.obj_props_table.setModel(self.obj_props_model)
+
+    def colors_changed(self, pals):
+        self.room_select.colors_changed(pals)
+        self.map_edit.colors_changed(pals)
 
     def metatile_edited(self, mt_idx):
         self.room_select.metatile_edited(mt_idx)

@@ -30,3 +30,5 @@ NEXXT (gfx and metasprite editor): https://frankengraphics.itch.io/nexxt
 ![Image](screenshots/image2.png)
 
 ![Image](screenshots/image3.png)
+
+![Image](screenshots/image4.png)

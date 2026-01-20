@@ -10,9 +10,7 @@ class MetatileEditWindow(QMainWindow):
 
         def __init__(self, gfx, pals, parent=None):
             super().__init__(0, 0, 128, 128, parent)
-            self.gfx = gfx
-            self.pals = pals
-            self.tiles_image = gfx_2_qimage(gfx, convert_palette(put_palette_strings(pals[0]), 'src/palette.pal', transparent=False))
+            self.area_changed(gfx, pals)
 
             self.selected_tile = 0
             self.selected_tile_rect = QGraphicsRectItem(0, 0, 8, 8)
@@ -38,8 +36,14 @@ class MetatileEditWindow(QMainWindow):
             self.area_changed(self.gfx, self.pals, pal_idx)
 
         def area_changed(self, gfx, pals, pal_idx=0):
+            self.gfx = gfx
+            self.pals = pals
+            self.pal_idx = pal_idx
             self.tiles_image = gfx_2_qimage(gfx, convert_palette(put_palette_strings(pals[0]), 'src/palette.pal', transparent=False), pal_per_tile=[pal_idx]*0x100)
             self.update(self.sceneRect())
+
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.pal_idx)
 
     class TileSelectView(QGraphicsView):
         def __init__(self, scene, parent=None):
@@ -55,8 +59,6 @@ class MetatileEditWindow(QMainWindow):
         def __init__(self, gfx, pals, metatile_data, parent=None):
             super().__init__(0, 0, 256, 256, parent)
 
-            self.gfx = gfx
-            self.pals = pals
             self.area_changed(gfx, pals, metatile_data)
 
             self.selected_tile = 0
@@ -142,11 +144,7 @@ class MetatileEditWindow(QMainWindow):
 
         @Slot(int)
         def palette_changed(self, pal_idx):
-            self.tile_images = []
-            pal = convert_palette(put_palette_strings(self.pals[0]), 'src/palette.pal', transparent=False)
-            for i in range(0x100):
-                self.tile_images.append(gfx_2_qimage(self.gfx, pal, width=1, idxs=[i], pal_per_tile=[pal_idx]))
-            self.update(self.sceneRect())
+            self.area_changed(self.gfx, self.pals, self.metatile_data, pal_idx)
 
         @Slot(Qt.CheckState)
         def show_tile_idxs_toggled(self, state):
@@ -158,14 +156,20 @@ class MetatileEditWindow(QMainWindow):
             self.highlight_same_tiles = state == Qt.Checked
             self.update(self.sceneRect())
 
-        def area_changed(self, gfx, pals, metatile_data):
+        def area_changed(self, gfx, pals, metatile_data, pal_idx=0):
+            self.gfx = gfx
+            self.pals = pals
             self.metatile_data = metatile_data
+            self.pal_idx = pal_idx
 
             self.tile_images = []
             pal = convert_palette(put_palette_strings(pals[0]), 'src/palette.pal', transparent=False)
             for i in range(0x100):
-                self.tile_images.append(gfx_2_qimage(gfx, pal, width=1, idxs=[i]))
+                self.tile_images.append(gfx_2_qimage(gfx, pal, width=1, idxs=[i], pal_per_tile=[pal_idx]))
             self.update(self.sceneRect())
+
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.metatile_data, self.pal_idx)
 
     class MetatileEditView(QGraphicsView):
         def __init__(self, scene, parent=None):
@@ -220,3 +224,7 @@ class MetatileEditWindow(QMainWindow):
 
         self.tile_select.area_changed(gfx, pal)
         self.mt_edit.area_changed(gfx, pal, metatile_data)
+
+    def colors_changed(self, pals):
+        self.tile_select.colors_changed(pals)
+        self.mt_edit.colors_changed(pals)

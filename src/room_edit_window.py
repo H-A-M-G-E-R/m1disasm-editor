@@ -79,6 +79,9 @@ class RoomEditWindow(QMainWindow):
 
             self.palette_changed(self.selected_pal)
 
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.metatile_data)
+
         def metatile_edited(self, mt_idx):
             pal = convert_palette(put_palette_strings(self.pals[0]), 'src/palette.pal', transparent=False)
             self.mt_images[mt_idx] = gfx_2_qimage(self.gfx, pal, width=2, idxs=self.metatile_data[mt_idx*4:mt_idx*4+4], pal_per_tile=[self.selected_pal]*4)
@@ -254,6 +257,9 @@ class RoomEditWindow(QMainWindow):
             # Objects display
             self.obj_list_changed(self.rooms_data[self.current_room]['objs'])
 
+        def colors_changed(self, pals):
+            self.area_changed(self.gfx, pals, self.metatile_data, self.rooms_data)
+
         def metatile_edited(self, mt_idx):
             pal = convert_palette(put_palette_strings(self.pals[0]), 'src/palette.pal', transparent=False)
             for pal_idx in range(4):
@@ -409,6 +415,10 @@ class RoomEditWindow(QMainWindow):
         self.room_edit.area_changed(gfx, pals, metatile_data, rooms_data)
 
         self.room_changed(0)
+
+    def colors_changed(self, pals):
+        self.mt_select.colors_changed(pals)
+        self.room_edit.colors_changed(pals)
 
     def metatile_edited(self, mt_idx, corner):
         self.mt_select.metatile_edited(mt_idx)
