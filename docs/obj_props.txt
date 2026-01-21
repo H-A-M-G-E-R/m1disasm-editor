@@ -1,5 +1,7 @@
-enemy:
+enemy (both):
     slot: Current slot the enemy spawns. If there's already an enemy at that slot, it will not spawn.
+          Vanilla: Range 0-5
+          Modded: Range 0-B
     miniboss: Whether the enemy is a miniboss. Valid areas: kraid, ridley
     type: Type (or species) of enemy.
 
@@ -90,11 +92,17 @@ Enemy types:
         0E - polyp (unused)
         0F - same as 4
 
-door:
+door (both):
     dir: Direction of door. 0 = right, 1 = left
     type: Type of door. 0 = red door, 1 = blue door, 2 = 10-missile door, 3 = door connecting to Mother Brain's room
 
-elevator:
+scroll_block (local) (modded):
+    right: block scrolling to right
+    left: block scrolling to left
+    down: block scrolling to down
+    up: block scrolling to up
+
+elevator (both):
     dir: Direction of elevator. 0 = down, 1 = up
     type: Vanilla: Type of elevator. 7F with dir = up = elevator to ending
         0 = Brinstar/Brinstar
@@ -102,13 +110,14 @@ elevator:
         2 = Brinstar/Kraid
         3 = Brinstar/Tourian
         4 = Norfair/Ridley
-        Modded: Destination area. 7F = elevator to ending
+        Modded: Does not exist, use area_change global object and to_ending prop instead
+    to_ending (modded): 1 = elevator to ending
 
-statues: (no props)
+statues (local): (no props)
 
-pipe_bug_hole: (same as enemy)
+pipe_bug_hole (local): (same as enemy)
 
-item:
+item (global):
     type: Type of item.
         0 = Bomb
         1 = Hi-Jump
@@ -121,6 +130,33 @@ item:
         8 = Energy tank
         9 = Missile
 
-mellows/mellas/memus: (no props)
+mellows/mellas/memus (global): (no props)
 
-pal_change: (no props)
+pal_change (global) (vanilla): (no props)
+
+tileset_change (both) (modded):
+    new_tileset: The tileset to change to.
+
+music_change (both) (modded):
+    music: The music to change to.
+
+area_change (global) (modded):
+    area: The area to change to.
+        0 = Brinstar
+        1 = Norfair
+        2 = Kraid
+        3 = Tourian
+        4 = Ridley
+
+room_state (global) (modded):
+    new_room: The room if the state condition is met.
+    room_state_vert_scroll: (no props)
+    room_state_item:
+        type: Type of item.
+            0-9 = same as above
+            A = missile door
+            E = Mother Brain
+            F-13 = zebetites
+        x: X position of item in map coords.
+        y: Y position of item in map coords.
+    room_state_miniboss_dead (Kraid & Ridley areas only): (no props)
