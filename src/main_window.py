@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.map_edit_window.show()
 
         self.palette_edit_window = PaletteEditWindow(self.pals[a], self)
-        self.palette_edit_window.show()
+        #self.palette_edit_window.show()
 
         self.area_select.currentTextChanged.connect(self.area_changed)
 
