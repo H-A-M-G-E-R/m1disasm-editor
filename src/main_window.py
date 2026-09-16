@@ -7,9 +7,13 @@ from src.room_edit_window import RoomEditWindow
 from src.map_edit_window import MapEditWindow
 from src.palette_edit_window import PaletteEditWindow
 from src.to_asm import palettes_2_asm, room_2_bytes, room_ptrs_and_incbins, global_objs_2_asm
-import copy, base64, json, os.path, subprocess, tempfile
+import copy, base64, json, os.path, platform, subprocess, tempfile
 
 class MainWindow(QMainWindow):
+    LZSA_PATH = "./lzsa"
+    if "windows" in platform.system().lower():
+        LZSA_PATH = "lzsa.exe"
+
     def __init__(self, folder_path, parent=None):
         super().__init__(parent)
 
@@ -195,7 +199,7 @@ class MainWindow(QMainWindow):
                 f = tempfile.NamedTemporaryFile(delete_on_close=False)
                 f.write(room_2_bytes(room, self.local_obj_types))
                 f.close()
-                subprocess.run(f'./lzsa -f 1 -r {f.name} {os.path.join(self.folder_path, f'{area}/rooms/{i:02X}.bin')}', shell=True)
+                subprocess.run(f'{self.LZSA_PATH} -f 1 -r {f.name} {os.path.join(self.folder_path, f'{area}/rooms/{i:02X}.bin')}', shell=True)
 
             with open(os.path.join(self.folder_path, f'{area}/rooms.asm'), 'w') as f:
                 f.write(room_ptrs_and_incbins(area, len(rooms)))
