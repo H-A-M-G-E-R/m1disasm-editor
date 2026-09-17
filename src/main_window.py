@@ -19,44 +19,42 @@ class MainWindow(QMainWindow):
 
         self.open_folder(folder_path)
 
+        # Menu bar
         self.file_menu = QMenu('File')
         self.save_action = self.file_menu.addAction('Save...')
         self.save_action.setShortcut('Ctrl+S')
         self.save_action.triggered.connect(self.save_triggered)
 
-        self.tools_menu = QMenu('Tools')
-        self.show_mt_edit_action = self.tools_menu.addAction('Metatile editor')
-        self.show_mt_edit_action.triggered.connect(self.show_mt_edit_triggered)
-        self.show_room_edit_action = self.tools_menu.addAction('Room editor')
-        self.show_room_edit_action.triggered.connect(self.show_room_edit_triggered)
-        self.show_map_edit_action = self.tools_menu.addAction('Map editor')
-        self.show_map_edit_action.triggered.connect(self.show_map_edit_triggered)
-        self.show_palette_edit_action = self.tools_menu.addAction('Palette editor')
-        self.show_palette_edit_action.triggered.connect(self.show_palette_edit_triggered)
-
         self.menuBar().addMenu(self.file_menu)
-        self.menuBar().addMenu(self.tools_menu)
 
+        # Area select
         self.area_select = QComboBox(self)
         for area in self.area_names:
             self.area_select.addItem(area)
         self.current_area = self.area_names[0]
         a = self.current_area
 
-        self.setCentralWidget(self.area_select)
-
+        # Tabs
         self.metatile_edit_window = MetatileEditWindow(self.gfx[a], self.pals[a], self.metatile_data[a], self)
-        #self.metatile_edit_window.show()
-
         self.room_edit_window = RoomEditWindow(self.gfx[a], self.pals[a], self.metatile_data[a], self.rooms_data[a], self.local_obj_types, self)
-        self.room_edit_window.show()
-
         self.map_edit_window = MapEditWindow(self.gfx[a], self.pals[a], self.metatile_data[a], self.rooms_data[a], self.global_obj_data[a], self.global_obj_types, self.world_map, self)
-        self.map_edit_window.show()
-
         self.palette_edit_window = PaletteEditWindow(self.pals[a], self)
-        #self.palette_edit_window.show()
 
+        self.tab_widget = QTabWidget()
+        self.tab_widget.addTab(self.metatile_edit_window, "Metatiles")
+        self.tab_widget.addTab(self.room_edit_window, "Room")
+        self.tab_widget.addTab(self.map_edit_window, "Map")
+        self.tab_widget.addTab(self.palette_edit_window, "Palette")
+
+        # Main layout
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.area_select)
+        self.layout.addWidget(self.tab_widget)
+        self.group_box = QGroupBox(self)
+        self.group_box.setLayout(self.layout)
+        self.setCentralWidget(self.group_box)
+
+        # Slots
         self.area_select.currentTextChanged.connect(self.area_changed)
 
         self.metatile_edit_window.mt_edit.edited.connect(self.metatile_edited)
@@ -206,19 +204,3 @@ class MainWindow(QMainWindow):
 
             with open(os.path.join(self.folder_path, f'{area}/global_objs.asm'), 'w') as f:
                 f.write(global_objs_2_asm(global_objs, self.global_obj_types))
-
-    @Slot(bool)
-    def show_mt_edit_triggered(self, checked):
-        self.metatile_edit_window.show()
-
-    @Slot(bool)
-    def show_room_edit_triggered(self, checked):
-        self.room_edit_window.show()
-
-    @Slot(bool)
-    def show_map_edit_triggered(self, checked):
-        self.map_edit_window.show()
-
-    @Slot(bool)
-    def show_palette_edit_triggered(self, checked):
-        self.palette_edit_window.show()
