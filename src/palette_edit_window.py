@@ -11,7 +11,7 @@ class PaletteEditWindow(QMainWindow):
             super().__init__(0, 0, 16, 2, parent)
 
             self.current_pal = 0
-            self.selected_color = 0
+            self.selected_color = -1
 
             self.area_changed(pals)
 
@@ -38,14 +38,15 @@ class PaletteEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            x = int(event.scenePos().x())
-            y = int(event.scenePos().y())
-            target_color = int(x+y*0x10)
-            self.converted_pal[target_color] = self.selected_color
-            self.pals[self.current_pal] = palette_to_strings(self.converted_pal)
-            self.update(self.sceneRect())
+            if self.selected_color != -1:
+                x = int(event.scenePos().x())
+                y = int(event.scenePos().y())
+                target_color = int(x+y*0x10)
+                self.converted_pal[target_color] = self.selected_color
+                self.pals[self.current_pal] = palette_to_strings(self.converted_pal)
+                self.update(self.sceneRect())
 
-            self.changed.emit(self.converted_pal)
+                self.changed.emit(self.converted_pal)
 
         @Slot(int)
         def color_picker_changed(self, color):
@@ -78,7 +79,7 @@ class PaletteEditWindow(QMainWindow):
             super().__init__(0, 0, 16, 4, parent)
 
             self.colors = generate_colors('src/palette.pal')
-            self.selected_color = 0
+            self.selected_color = -1
 
             self.selected_color_rect_1 = QGraphicsRectItem(0, 0, 1, 1)
             pen = QPen(0)
@@ -93,6 +94,9 @@ class PaletteEditWindow(QMainWindow):
             pen.setWidthF(1/16)
             self.selected_color_rect_2.setPen(pen)
             self.addItem(self.selected_color_rect_2)
+
+            self.selected_color_rect_1.hide()
+            self.selected_color_rect_2.hide()
 
         def drawBackground(self, painter: QPainter, rect):
             painter.setPen(Qt.PenStyle.NoPen)
@@ -114,9 +118,17 @@ class PaletteEditWindow(QMainWindow):
 
             x = int(event.scenePos().x())
             y = int(event.scenePos().y())
-            self.selected_color = int(x+y*0x10)
-            self.selected_color_rect_1.setPos(x, y)
-            self.selected_color_rect_2.setPos(x, y)
+            color_i = int(x+y*0x10)
+            if color_i == self.selected_color:
+                self.selected_color = -1
+                self.selected_color_rect_1.hide()
+                self.selected_color_rect_2.hide()
+            else:
+                self.selected_color = color_i
+                self.selected_color_rect_1.setPos(x, y)
+                self.selected_color_rect_2.setPos(x, y)
+                self.selected_color_rect_1.show()
+                self.selected_color_rect_2.show()
 
             self.changed.emit(self.selected_color)
 

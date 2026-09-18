@@ -12,8 +12,9 @@ class MetatileEditWindow(QMainWindow):
             super().__init__(0, 0, 128, 128, parent)
             self.area_changed(gfx, pals)
 
-            self.selected_tile = 0
+            self.selected_tile = -1
             self.selected_tile_rect = QGraphicsRectItem(0, 0, 8, 8)
+            self.selected_tile_rect.hide()
             pen = QPen(0x00FF00)
             pen.setJoinStyle(Qt.MiterJoin)
             self.selected_tile_rect.setPen(pen)
@@ -26,8 +27,14 @@ class MetatileEditWindow(QMainWindow):
             super().mousePressEvent(event)
             x = int(event.scenePos().x())
             y = int(event.scenePos().y())
-            self.selected_tile = int(x//8+y//8*0x10)
-            self.selected_tile_rect.setPos(x//8*8, y//8*8)
+            tile_i = int(x//8+y//8*0x10)
+            if tile_i == self.selected_tile:
+                self.selected_tile = -1
+                self.selected_tile_rect.hide()
+            else:
+                self.selected_tile = tile_i
+                self.selected_tile_rect.setPos(x//8*8, y//8*8)
+                self.selected_tile_rect.show()
 
             self.changed.emit(self.selected_tile)
 
@@ -61,7 +68,7 @@ class MetatileEditWindow(QMainWindow):
 
             self.area_changed(gfx, pals, metatile_data)
 
-            self.selected_tile = 0
+            self.selected_tile = -1
 
             self.show_tile_idxs = False
             self.highlight_same_tiles = False
@@ -125,7 +132,7 @@ class MetatileEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            if event.button() == Qt.LeftButton:
+            if event.button() == Qt.LeftButton and self.selected_tile != -1:
                 x = int(event.scenePos().x())
                 y = int(event.scenePos().y())
                 target_mt = int(x//0x10+y//0x10*0x10)

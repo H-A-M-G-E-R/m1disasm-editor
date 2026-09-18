@@ -16,8 +16,9 @@ class RoomEditWindow(QMainWindow):
             self.metatile_data = metatile_data
 
             # Cursor at selected metatile
-            self.selected_mt = 0
+            self.selected_mt = -1
             self.selected_mt_rect = QGraphicsRectItem(0, 0, 16, 16)
+            self.selected_mt_rect.hide()
             self.addItem(self.selected_mt_rect)
 
             self.palette_changed(0)
@@ -45,8 +46,14 @@ class RoomEditWindow(QMainWindow):
             super().mousePressEvent(event)
             x = int(event.scenePos().x())
             y = int(event.scenePos().y())
-            self.selected_mt = int(x//16+y//16*16)
-            self.selected_mt_rect.setPos(x//16*16, y//16*16)
+            mt_i = int(x//16+y//16*16)
+            if self.selected_mt == mt_i:
+                self.selected_mt = -1
+                self.selected_mt_rect.hide()
+            else:
+                self.selected_mt = mt_i
+                self.selected_mt_rect.setPos(x//16*16, y//16*16)
+                self.selected_mt_rect.show()
 
             self.changed.emit(self.selected_mt)
 
@@ -103,7 +110,7 @@ class RoomEditWindow(QMainWindow):
 
             self.area_changed(gfx, pals, metatile_data, rooms_data)
 
-            self.selected_mt = 0
+            self.selected_mt = -1
             self.selected_pal = 0
             self.show_tile_idxs = False
             self.show_mt_idxs = False
@@ -164,16 +171,18 @@ class RoomEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton and self.selected_mt != -1:
                 self.edit_room_metatile(int(event.scenePos().x()), int(event.scenePos().y()))
 
         def mouseMoveEvent(self, event):
             super().mouseMoveEvent(event)
 
-            if self.mouseGrabberItem() == None and event.buttons() & Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.buttons() & Qt.LeftButton and self.selected_mt != -1:
                 self.edit_room_metatile(int(event.scenePos().x()), int(event.scenePos().y()))
 
         def edit_room_metatile(self, x, y):
+            if self.selected_mt == -1:
+                return
             if x >= 0 and x < 0x100 and y >= 0 and y < 0xF0:
                 target_mt_loc = int(x//0x10+y//0x10*0x10)
                 self.rooms_data[self.current_room]['tilemap'][target_mt_loc] = self.selected_mt

@@ -49,10 +49,16 @@ class MapEditWindow(QMainWindow):
             super().mousePressEvent(event)
             x = int(event.scenePos().x())
             y = int(event.scenePos().y())
-            self.selected_room = int(y//0xF0)
-            if self.selected_room >= len(self.rooms_data):
-                self.selected_room = 0xFF
-            self.selected_room_rect.setPos(0, y//0xF0*0xF0)
+            room_i = int(y//0xF0)
+            if room_i >= len(self.rooms_data):
+                room_i = 0xFF
+            if room_i == self.selected_room:
+                self.selected_room = -1
+                self.selected_room_rect.hide()
+            else:
+                self.selected_room = room_i
+                self.selected_room_rect.setPos(0, y//0xF0*0xF0)
+                self.selected_room_rect.show()
 
             self.changed.emit(self.selected_room)
 
@@ -83,8 +89,9 @@ class MapEditWindow(QMainWindow):
                     mts_per_pal.append(gfx_2_qimage(gfx, pal, width=2, idxs=metatile_data[i*4:i*4+4], pal_per_tile=[pal_idx]*4))
                 self.mt_images.append(mts_per_pal)
 
-            self.selected_room = 0
+            self.selected_room = -1
             self.selected_room_rect.setPos(0, 0)
+            self.selected_room_rect.hide()
 
             self.update(self.sceneRect())
 
@@ -164,7 +171,7 @@ class MapEditWindow(QMainWindow):
         def mousePressEvent(self, event):
             super().mousePressEvent(event)
 
-            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton:
+            if self.mouseGrabberItem() == None and event.button() == Qt.LeftButton and self.selected_room != -1:
                 x = event.scenePos().x()
                 y = event.scenePos().y()
                 self.world_map[int(x//0x100+y//0xF0*0x20)] = self.selected_room
@@ -226,7 +233,7 @@ class MapEditWindow(QMainWindow):
                     mts_per_pal.append(gfx_2_qimage(gfx, pal, width=2, idxs=metatile_data[i*4:i*4+4], pal_per_tile=[pal_idx]*4))
                 self.mt_images.append(mts_per_pal)
 
-            self.selected_room = 0
+            self.selected_room = -1
             self.update(self.sceneRect())
 
             # Objects display
